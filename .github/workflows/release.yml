@@ -1,0 +1,24 @@
+name: Create Release Tag
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  tag_release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Bump version and create release tag
+        run: |
+          # Extract version from package.json
+          version=$(node -p "require('./package.json').version")
+          # Remove '-snapshot' from version for release
+          release_version=${version%-snapshot}
+          # Create and push tag
+          git tag "v${release_version}"
+          git push origin "v${release_version}"
