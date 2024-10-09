@@ -42,7 +42,7 @@ jobs:
 
             docker stop my-app || true
             docker rm my-app || true
-s
+
             docker pull \$previous_image
             docker run -d --name my-app -p 80:80 \$previous_image
           EOF
