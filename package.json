@@ -1,7 +1,7 @@
 {
   "name": "microfrontend1",
   "private": true,
-  "version": "0.0.4-snapshot",
+  "version": "0.0.5-snapshot",
   "type": "module",
   "scripts": {
     "dev": "vite",
