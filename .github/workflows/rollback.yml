@@ -1,0 +1,48 @@
+name: Rollback to Previous Docker Image
+
+on:
+  workflow_dispatch:
+    inputs:
+      docker_tag:
+        description: 'Docker tag to roll back to (leave empty for previous version)'
+        required: false
+        default: ''
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install SSH Client
+        run: sudo apt-get install openssh-client
+
+      - name: Copy SSH key to GitHub runner
+        run: echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
+
+      - name: Set permissions for SSH key
+        run: chmod 400 ec2_key.pem
+
+      - name: Rollback to specified or previous version
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ec2_key.pem ec2-user@${{ secrets.EC2_IP_ADDRESS }} << EOF
+            current_image=$(docker inspect --format='{{.Config.Image}}' my-app)
+
+            if [ "${{ github.event.inputs.docker_tag }}" == "" ]; then
+              previous_image=$(docker images --format "{{.Repository}}:{{.Tag}}" ${{ secrets.DOCKER_USERNAME }}/my-app | grep -v \$current_image | head -n 1)
+            else
+              previous_image="${{ secrets.DOCKER_USERNAME }}/my-app:${{ github.event.inputs.docker_tag }}"
+            fi
+
+            if [ -z "\$previous_image" ]; then
+              echo "Error."
+              exit 1
+            fi
+
+            echo "Rollback to \$previous_image"
+
+            docker stop my-app || true
+            docker rm my-app || true
+s
+            docker pull \$previous_image
+            docker run -d --name my-app -p 80:80 \$previous_image
+          EOF
