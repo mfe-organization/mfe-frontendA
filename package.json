@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "serve": "vite preview --port 3002 --strictPort",
     "release": "git tag v$(node -p -e \"require('./package.json').version\") && git push origin --tags"
   },
   "dependencies": {

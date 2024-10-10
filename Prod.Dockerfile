@@ -12,6 +12,6 @@ FROM nginx:alpine
 
 COPY --from=build /app/dist /usr/share/nginx/html
 
-EXPOSE 5143
+EXPOSE 3002
 
 CMD ["nginx", "-g", "daemon off;"]
